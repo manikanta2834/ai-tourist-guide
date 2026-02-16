@@ -7,32 +7,83 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { ErrorMessage } from '@/components/ui/ErrorMessage'
 import { api } from '@/lib/api'
 
-// Real Sriperumbudur temple and location images
+// Real Sriperumbudur temple and location images - High quality from Wikimedia & Unsplash
 const heroImages = [
   {
-    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Vallakottai_Murugan_Temple_gopuram.jpg/800px-Vallakottai_Murugan_Temple_gopuram.jpg',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Vallakottai_Murugan_Temple_gopuram.jpg/1200px-Vallakottai_Murugan_Temple_gopuram.jpg',
     title: 'Vallakottai Murugan Temple',
-    subtitle: '9th Century Heritage'
+    subtitle: '9th Century Heritage Site',
+    description: 'One of the six abodes of Lord Murugan, featuring 9th-century Dravidian architecture with a towering gopuram. Recently renovated with Maha Kumbhabhishekam.'
   },
   {
-    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Rajiv_Gandhi_Memorial_Sriperumbudur.jpg/800px-Rajiv_Gandhi_Memorial_Sriperumbudur.jpg',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Rajiv_Gandhi_Memorial_Sriperumbudur.jpg/1200px-Rajiv_Gandhi_Memorial_Sriperumbudur.jpg',
     title: 'Rajiv Gandhi Memorial',
-    subtitle: 'National Monument'
+    subtitle: 'National Memorial',
+    description: 'Seven granite pillars symbolizing unity in diversity, with a lotus-shaped platform representing peace. Built at the site of the 1991 memorial.'
   },
   {
-    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Sriperumbudur_Temple_Tower.jpg/600px-Sriperumbudur_Temple_Tower.jpg',
-    title: 'Sriperumbudur Temple',
-    subtitle: 'Ancient Architecture'
+    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Sriperumbudur_Temple_Tower.jpg/800px-Sriperumbudur_Temple_Tower.jpg',
+    title: 'Sri Adikesava Perumal Temple',
+    subtitle: 'Ancient Vishnu Temple',
+    description: 'Birthplace of Sri Ramanuja, the great Vaishnavite philosopher. Features intricate carvings and traditional South Indian temple architecture.'
   }
 ]
 
 const categories = [
-  { id: 'temple', name: 'Temples', icon: '🛕', count: 12, color: 'from-red-500 to-orange-500', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Vallakottai_Murugan_Temple_gopuram.jpg/400px-Vallakottai_Murugan_Temple_gopuram.jpg' },
-  { id: 'monument', name: 'Monuments', icon: '🏛️', count: 5, color: 'from-amber-500 to-yellow-500', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Rajiv_Gandhi_Memorial_Sriperumbudur.jpg/400px-Rajiv_Gandhi_Memorial_Sriperumbudur.jpg' },
-  { id: 'industrial', name: 'Industrial', icon: '🏭', count: 8, color: 'from-blue-500 to-cyan-500', image: 'https://images.unsplash.com/photo-1565793298595-6a879b1d9492?w=400' },
-  { id: 'nature', name: 'Nature', icon: '🌳', count: 6, color: 'from-green-500 to-emerald-500', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400' },
-  { id: 'food', name: 'Food', icon: '🍽️', count: 15, color: 'from-orange-500 to-red-500', image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400' },
-  { id: 'shopping', name: 'Shopping', icon: '🛍️', count: 9, color: 'from-purple-500 to-pink-500', image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400' },
+  {
+    id: 'temple',
+    name: 'Temples',
+    icon: '🛕',
+    count: 12,
+    color: 'from-orange-600 to-red-600',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Vallakottai_Murugan_Temple_gopuram.jpg/600px-Vallakottai_Murugan_Temple_gopuram.jpg',
+    fallback: 'https://images.unsplash.com/photo-1561361058-e1c1f38c938d?w=600'
+  },
+  {
+    id: 'monument',
+    name: 'Monuments',
+    icon: '🏛️',
+    count: 5,
+    color: 'from-amber-500 to-orange-500',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Rajiv_Gandhi_Memorial_Sriperumbudur.jpg/600px-Rajiv_Gandhi_Memorial_Sriperumbudur.jpg',
+    fallback: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600'
+  },
+  {
+    id: 'industrial',
+    name: 'Industrial',
+    icon: '🏭',
+    count: 8,
+    color: 'from-blue-600 to-indigo-600',
+    image: 'https://images.unsplash.com/photo-1565793298595-6a879b1d9492?w=600',
+    fallback: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600'
+  },
+  {
+    id: 'nature',
+    name: 'Nature',
+    icon: '🌳',
+    count: 6,
+    color: 'from-emerald-500 to-green-600',
+    image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600',
+    fallback: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600'
+  },
+  {
+    id: 'food',
+    name: 'Food',
+    icon: '🍽️',
+    count: 15,
+    color: 'from-red-500 to-rose-600',
+    image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600',
+    fallback: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600'
+  },
+  {
+    id: 'shopping',
+    name: 'Shopping',
+    icon: '🛍️',
+    count: 9,
+    color: 'from-violet-500 to-purple-600',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600',
+    fallback: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=600'
+  },
 ]
 
 const stats = [
@@ -152,38 +203,71 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Right Content - 3D Card Stack */}
+            {/* Right Content - 3D Card Stack with Real Temple Images */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="hidden lg:block relative h-[600px]"
+              className="hidden lg:block relative h-[700px]"
             >
               {heroImages.map((img, idx) => (
                 <motion.div
                   key={img.title}
-                  className="absolute w-80 rounded-2xl overflow-hidden shadow-2xl"
+                  className="absolute w-[340px] rounded-2xl overflow-hidden shadow-2xl cursor-pointer group"
                   style={{
-                    top: `${idx * 120}px`,
-                    right: `${idx * 40}px`,
+                    top: `${idx * 100}px`,
+                    right: `${idx * 35}px`,
                     zIndex: heroImages.length - idx,
                   }}
-                  whileHover={{ scale: 1.05, rotateY: 5, zIndex: 10 }}
-                  transition={{ type: "spring", stiffness: 300 }}
+                  whileHover={{ scale: 1.08, rotateY: 8, zIndex: 10, y: -10 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
-                  <div className="relative aspect-[4/3]">
+                  <div className="relative aspect-[3/4]">
+                    {/* Real Temple Image */}
                     <img
                       src={img.url}
                       alt={img.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1561361058-e1c1f38c938d?w=800';
                       }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <h3 className="text-white font-bold text-lg">{img.title}</h3>
-                      <p className="text-gray-300 text-sm">{img.subtitle}</p>
+                    {/* Gradient Overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-temple-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    {/* Content */}
+                    <div className="absolute bottom-0 left-0 right-0 p-5 transform transition-transform duration-300 group-hover:translate-y-[-10px]">
+                      {/* Location Badge */}
+                      <div className="inline-flex items-center gap-1 px-2 py-1 bg-temple-gold/90 rounded-full text-xs font-bold text-gray-900 mb-2">
+                        <MapPin className="w-3 h-3" />
+                        Sriperumbudur
+                      </div>
+
+                      <h3 className="text-white font-bold text-xl leading-tight mb-1">{img.title}</h3>
+                      <p className="text-temple-gold text-sm font-medium mb-2">{img.subtitle}</p>
+
+                      {/* Description - shows on hover */}
+                      <p className="text-gray-300 text-xs leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
+                        {(img as any).description}
+                      </p>
+
+                      {/* View Button - shows on hover */}
+                      <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <Link
+                          to="/explore"
+                          className="inline-flex items-center text-xs font-bold text-white bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg hover:bg-white/30 transition-colors"
+                        >
+                          View Details
+                          <ChevronRight className="w-3 h-3 ml-1" />
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Rating Badge */}
+                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1">
+                      <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                      <span className="text-xs font-bold text-gray-900">4.{7 + idx}</span>
                     </div>
                   </div>
                 </motion.div>
