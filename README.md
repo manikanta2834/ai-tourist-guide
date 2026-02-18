@@ -91,5 +91,4 @@ MIT
 
 Built for HACK 1.0 FUSION | Jeppiaar Institute of Technology | February 2026
 =======
-# ai-tourist-guide
->>>>>>> e14c178e01941562eae32e9f3b8b8c3f05098f57
+
