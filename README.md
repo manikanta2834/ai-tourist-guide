@@ -1,15 +1,4 @@
-# AI-Powered Virtual Tourist Guide for Sriperumbudur
 
-Full-stack web application built for HACK 1.0 FUSION competition - React + Node.js + MongoDB + Mapbox + AI Recommendations.
-
-## Features
-
-- **Interactive Map** - Mapbox GL JS with geospatial queries
-- **AI Recommendations** - Hybrid filtering (collaborative + content-based + constraint-based)
-- **Itinerary Builder** - Optimize routes with time constraints
-- **Real-time** - Socket.io for live updates
-- **JWT Authentication** - Secure user sessions
-- **Responsive Design** - Mobile-first with Tailwind CSS
 
 ## Quick Start
 
@@ -101,3 +90,6 @@ MIT
 ---
 
 Built for HACK 1.0 FUSION | Jeppiaar Institute of Technology | February 2026
+=======
+# ai-tourist-guide
+>>>>>>> e14c178e01941562eae32e9f3b8b8c3f05098f57
