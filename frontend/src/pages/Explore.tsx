@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Map as MapIcon, List, Locate } from 'lucide-react'
 import { MapContainer } from '@/components/map/MapContainer'
 import { LocationCard } from '@/components/locations/LocationCard'
@@ -51,8 +52,13 @@ export default function Explore() {
   return (
     <div className="h-[calc(100vh-4rem)] md:h-[calc(100vh-4rem)]">
       {/* Search Bar */}
-      <div className="absolute top-4 left-4 right-4 z-10 md:top-20 md:left-8 md:right-auto md:w-96">
-        <div className="bg-white rounded-lg shadow-lg p-2">
+      <motion.div
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="absolute top-4 left-4 right-4 z-10 md:top-20 md:left-8 md:right-auto md:w-96"
+      >
+        <div className="glass-panel rounded-lg p-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -60,7 +66,7 @@ export default function Explore() {
               placeholder="Search places..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white/80"
             />
           </div>
 
@@ -68,18 +74,16 @@ export default function Explore() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setView('map')}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  view === 'map' ? 'bg-primary-100 text-primary-700' : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'map' ? 'bg-primary-100 text-primary-700' : 'text-gray-600 hover:bg-gray-100'
+                  }`}
               >
                 <MapIcon className="w-4 h-4" />
                 Map
               </button>
               <button
                 onClick={() => setView('list')}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  view === 'list' ? 'bg-primary-100 text-primary-700' : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'list' ? 'bg-primary-100 text-primary-700' : 'text-gray-600 hover:bg-gray-100'
+                  }`}
               >
                 <List className="w-4 h-4" />
                 List
@@ -96,46 +100,69 @@ export default function Explore() {
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="h-full flex">
-        {/* Map View */}
-        {view === 'map' && (
-          <div className="flex-1 relative">
-            <MapContainer
-              locations={locations?.data?.locations || []}
-              onMarkerClick={handleMarkerClick}
-            />
-          </div>
-        )}
+      <div className="h-full flex overflow-hidden">
+        <AnimatePresence mode="wait">
+          {/* Map View */}
+          {view === 'map' && (
+            <motion.div
+              key="map-view"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="flex-1 relative w-full h-full"
+            >
+              <MapContainer
+                locations={locations?.data?.locations || []}
+                onMarkerClick={handleMarkerClick}
+              />
+            </motion.div>
+          )}
 
-        {/* List View */}
-        {view === 'list' && (
-          <div className="flex-1 overflow-auto">
-            <div className="p-4 md:p-8">
-              <div className="mb-6">
-                <CategoryFilter />
-              </div>
-
-              {isLoading && <LoadingSpinner />}
-              {error && <ErrorMessage message="Failed to load locations" onRetry={refetch} />}
-
-              {!isLoading && !error && (
-                <div className="space-y-4">
-                  <p className="text-gray-600 text-sm">
-                    Found {locations?.data?.locations?.length || 0} places nearby
-                  </p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {locations?.data?.locations?.map((location: any) => (
-                      <LocationCard key={location._id} location={location} />
-                    ))}
-                  </div>
+          {/* List View */}
+          {view === 'list' && (
+            <motion.div
+              key="list-view"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="flex-1 overflow-auto w-full h-full"
+            >
+              <div className="p-4 md:p-8">
+                <div className="mb-6">
+                  <CategoryFilter />
                 </div>
-              )}
-            </div>
-          </div>
-        )}
+
+                {isLoading && <LoadingSpinner />}
+                {error && <ErrorMessage message="Failed to load locations" onRetry={refetch} />}
+
+                {!isLoading && !error && (
+                  <div className="space-y-4">
+                    <p className="text-gray-600 text-sm">
+                      Found {locations?.data?.locations?.length || 0} places nearby
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {locations?.data?.locations?.map((location: any, index: number) => (
+                        <motion.div
+                          key={location._id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <LocationCard location={location} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )

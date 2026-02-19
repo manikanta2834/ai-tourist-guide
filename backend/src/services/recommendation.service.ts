@@ -4,6 +4,7 @@ import { Location, ILocation } from '../models/Location';
 import { User, IUser } from '../models/User';
 import { Review } from '../models/Review';
 import { logger } from '../utils/logger';
+import { realTimeService } from './realtime.service';
 
 const TfIdf = natural.TfIdf;
 
@@ -24,9 +25,11 @@ export class RecommendationService {
   private weights: RecommendationWeights = {
     explicit: 0.40,
     implicit: 0.30,
-    temporal: 0.20,
-    realTime: 0.10,
+    temporal: 0.15,
+    realTime: 0.15, // Increased weight for real-time factors
   };
+
+  // ... (collab and content based methods remain same)
 
   // Collaborative Filtering using Matrix Factorization
   async collaborativeFiltering(userId: string, limit: number = 10): Promise<RecommendationScore[]> {
@@ -35,13 +38,13 @@ export class RecommendationService {
       const allLocations = await Location.find({ isActive: true });
       const allReviews = await Review.find({ isActive: true });
 
-      const userIndexMap = new Map(allUsers.map((u, i) => [u._id.toString(), i]));
-      const locationIndexMap = new Map(allLocations.map((l, i) => [l._id.toString(), i]));
+      const userIndexMap = new Map(allUsers.map((u: IUser, i: number) => [u._id.toString(), i]));
+      const locationIndexMap = new Map(allLocations.map((l: ILocation, i: number) => [(l as any)._id.toString(), i]));
 
       const matrix = new Matrix(allUsers.length, allLocations.length);
       matrix.fill(0);
 
-      allReviews.forEach((review) => {
+      allReviews.forEach((review: any) => {
         const userIdx = userIndexMap.get(review.user.toString());
         const locIdx = locationIndexMap.get(review.location.toString());
         if (userIdx !== undefined && locIdx !== undefined) {
@@ -70,11 +73,11 @@ export class RecommendationService {
       const scores = new Map<string, number>();
       const counts = new Map<string, number>();
 
-      topSimilarUsers.forEach(({ index, score }) => {
+      topSimilarUsers.forEach(({ index, score }: { index: number; score: number }) => {
         const row = matrix.getRow(index);
-        row.forEach((rating, locIdx) => {
+        row.forEach((rating: number, locIdx: number) => {
           if (rating > 0) {
-            const locationId = allLocations[locIdx]._id.toString();
+            const locationId = (allLocations[locIdx] as any)._id.toString();
             scores.set(locationId, (scores.get(locationId) || 0) + rating * score);
             counts.set(locationId, (counts.get(locationId) || 0) + score);
           }
@@ -82,8 +85,8 @@ export class RecommendationService {
       });
 
       const recommendations: RecommendationScore[] = [];
-      scores.forEach((score, locationId) => {
-        const location = allLocations.find((l) => l._id.toString() === locationId);
+      scores.forEach((score: number, locationId: string) => {
+        const location = allLocations.find((l: ILocation) => (l as any)._id.toString() === locationId);
         if (location) {
           const avgScore = score / (counts.get(locationId) || 1);
           recommendations.push({
@@ -107,7 +110,7 @@ export class RecommendationService {
       const tfidf = new TfIdf();
       const locations = await Location.find({ isActive: true });
 
-      locations.forEach((loc) => {
+      locations.forEach((loc: ILocation) => {
         const text = `${loc.name} ${loc.description} ${loc.tags.join(' ')} ${loc.category} ${loc.subcategory || ''}`;
         tfidf.addDocument(text.toLowerCase());
       });
@@ -115,7 +118,7 @@ export class RecommendationService {
       const userProfile = this.buildUserProfile(user, tfidf);
       const recommendations: RecommendationScore[] = [];
 
-      locations.forEach((loc, index) => {
+      locations.forEach((loc: ILocation, index: number) => {
         const text = `${loc.name} ${loc.description} ${loc.tags.join(' ')}`;
         const locVector = this.getDocumentVector(tfidf, index);
         const similarity = this.cosineSimilarity(userProfile, locVector);
@@ -251,7 +254,7 @@ export class RecommendationService {
 
       const addToMerged = (recs: RecommendationScore[], weight: number) => {
         recs.forEach((rec) => {
-          const id = rec.location._id.toString();
+          const id = (rec.location as any)._id.toString();
           if (merged.has(id)) {
             const existing = merged.get(id)!;
             existing.score += rec.score * weight;
@@ -266,13 +269,26 @@ export class RecommendationService {
       addToMerged(content, 0.4);
       addToMerged(constraints, 0.3);
 
-      // Add real-time context
+      // Add real-time context and dynamic scoring
       for (const [id, rec] of merged) {
+        const isOutdoor = rec.location.category === 'nature' || rec.location.category === 'monument' || rec.location.category === 'temple';
+
+        // Get simulated real-time data multiplier
+        const modifier = await realTimeService.getRealTimeScoreModifier(id, isOutdoor);
+
+        // Apply modifier to the total score so far
+        rec.score *= modifier;
+
+        // Add real-time specific reasons
+        const realTimeData = await realTimeService.getRealTimeData(id);
+        if (realTimeData.weather.condition === 'Sunny' && isOutdoor) {
+          rec.reasons.unshift('Perfect weather for this!');
+        } else if (realTimeData.crowdDensity === 'Low') {
+          rec.reasons.unshift('Currently uncrowded');
+        }
+
         const realTimeScore = await this.getRealTimeScore(rec.location);
         rec.score += realTimeScore * this.weights.realTime;
-        if (realTimeScore > 0.5) {
-          rec.reasons.push('Currently open and accessible');
-        }
       }
 
       return Array.from(merged.values())
@@ -326,9 +342,9 @@ export class RecommendationService {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(this.toRadians(point1[1])) *
-        Math.cos(this.toRadians(point2[1])) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(this.toRadians(point2[1])) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { MapPin, Compass, Calendar, Star, ChevronRight, Heart, Clock, Users, Award, Camera, Navigation, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { LocationCard } from '@/components/locations/LocationCard'
+import { Hero3DMap } from '@/components/home/Hero3DMap'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { ErrorMessage } from '@/components/ui/ErrorMessage'
 import { api } from '@/lib/api'
@@ -208,70 +209,9 @@ export default function Home() {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="hidden lg:block relative h-[700px]"
+              className="hidden lg:block relative h-[600px] w-full"
             >
-              {heroImages.map((img, idx) => (
-                <motion.div
-                  key={img.title}
-                  className="absolute w-[340px] rounded-2xl overflow-hidden shadow-2xl cursor-pointer group"
-                  style={{
-                    top: `${idx * 100}px`,
-                    right: `${idx * 35}px`,
-                    zIndex: heroImages.length - idx,
-                  }}
-                  whileHover={{ scale: 1.08, rotateY: 8, zIndex: 10, y: -10 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                >
-                  <div className="relative aspect-[3/4]">
-                    {/* Real Temple Image */}
-                    <img
-                      src={img.url}
-                      alt={img.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1561361058-e1c1f38c938d?w=800';
-                      }}
-                    />
-                    {/* Gradient Overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-temple-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                    {/* Content */}
-                    <div className="absolute bottom-0 left-0 right-0 p-5 transform transition-transform duration-300 group-hover:translate-y-[-10px]">
-                      {/* Location Badge */}
-                      <div className="inline-flex items-center gap-1 px-2 py-1 bg-temple-gold/90 rounded-full text-xs font-bold text-gray-900 mb-2">
-                        <MapPin className="w-3 h-3" />
-                        Sriperumbudur
-                      </div>
-
-                      <h3 className="text-white font-bold text-xl leading-tight mb-1">{img.title}</h3>
-                      <p className="text-temple-gold text-sm font-medium mb-2">{img.subtitle}</p>
-
-                      {/* Description - shows on hover */}
-                      <p className="text-gray-300 text-xs leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
-                        {(img as any).description}
-                      </p>
-
-                      {/* View Button - shows on hover */}
-                      <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <Link
-                          to="/explore"
-                          className="inline-flex items-center text-xs font-bold text-white bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg hover:bg-white/30 transition-colors"
-                        >
-                          View Details
-                          <ChevronRight className="w-3 h-3 ml-1" />
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Rating Badge */}
-                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1">
-                      <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                      <span className="text-xs font-bold text-gray-900">4.{7 + idx}</span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+              <Hero3DMap />
             </motion.div>
           </div>
         </div>

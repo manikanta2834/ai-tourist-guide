@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css'
+import maplibregl from 'maplibre-gl'
+import 'maplibre-gl/dist/maplibre-gl.css'
 import { useMapStore } from '@/stores/mapStore'
-
-// Set your Mapbox token
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || 'pk.eyJ1IjoiZXhhbXBsZSIsImEiOiJja2h0bXJ4bTgwMnp5MnJzMTVzZ3N3Z3Z6In0.example'
 
 interface MapContainerProps {
   locations?: Array<{
@@ -30,8 +27,8 @@ const categoryColors: Record<string, string> = {
 
 export function MapContainer({ locations = [], onMarkerClick }: MapContainerProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
-  const map = useRef<mapboxgl.Map | null>(null)
-  const markers = useRef<mapboxgl.Marker[]>([])
+  const map = useRef<maplibregl.Map | null>(null)
+  const markers = useRef<maplibregl.Marker[]>([])
   const { viewState, setViewState, selectedLocation } = useMapStore()
   const [isMapLoaded, setIsMapLoaded] = useState(false)
 
@@ -39,23 +36,42 @@ export function MapContainer({ locations = [], onMarkerClick }: MapContainerProp
   useEffect(() => {
     if (!mapContainer.current || map.current) return
 
-    mapboxgl.accessToken = MAPBOX_TOKEN
-
-    map.current = new mapboxgl.Map({
+    map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: {
+        version: 8,
+        sources: {
+          osm: {
+            type: 'raster',
+            tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tileSize: 256,
+            attribution: '&copy; OpenStreetMap Contributors',
+            maxzoom: 19
+          }
+        },
+        layers: [
+          {
+            id: 'osm',
+            type: 'raster',
+            source: 'osm'
+          }
+        ]
+      },
       center: [viewState.longitude, viewState.latitude],
       zoom: viewState.zoom,
+      pitch: 45, // 3D pitch
+      bearing: -17.6, // 3D bearing
+      antialias: true,
     })
 
     map.current.on('load', () => {
       setIsMapLoaded(true)
 
       // Add navigation control
-      map.current?.addControl(new mapboxgl.NavigationControl(), 'bottom-right')
+      map.current?.addControl(new maplibregl.NavigationControl(), 'bottom-right')
 
       // Add geolocate control
-      const geolocate = new mapboxgl.GeolocateControl({
+      const geolocate = new maplibregl.GeolocateControl({
         positionOptions: { enableHighAccuracy: true },
         trackUserLocation: true,
         showUserHeading: true,
@@ -111,10 +127,10 @@ export function MapContainer({ locations = [], onMarkerClick }: MapContainerProp
         justify-content: center;
       `
 
-      const marker = new mapboxgl.Marker(el)
+      const marker = new maplibregl.Marker({ element: el })
         .setLngLat([lng, lat])
         .setPopup(
-          new mapboxgl.Popup({ offset: 25 }).setHTML(`
+          new maplibregl.Popup({ offset: 25 }).setHTML(`
             <div class="p-2">
               <h3 class="font-semibold text-sm">${location.name}</h3>
               <p class="text-xs text-gray-600 capitalize">${location.category}</p>
@@ -125,7 +141,7 @@ export function MapContainer({ locations = [], onMarkerClick }: MapContainerProp
             </div>
           `)
         )
-        .addTo(map.current)
+        .addTo(map.current!)
 
       marker.getElement().addEventListener('click', () => {
         onMarkerClick?.(location._id)
@@ -140,8 +156,11 @@ export function MapContainer({ locations = [], onMarkerClick }: MapContainerProp
     if (selectedLocation && map.current) {
       map.current.flyTo({
         center: [selectedLocation.longitude, selectedLocation.latitude],
-        zoom: 15,
-        duration: 1500,
+        zoom: 17,
+        pitch: 60,
+        bearing: 0,
+        essential: true,
+        duration: 2000,
       })
     }
   }, [selectedLocation])

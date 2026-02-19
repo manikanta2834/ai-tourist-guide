@@ -39,11 +39,11 @@ export class ItineraryService {
       const items: IItineraryItem[] = [];
       let currentTime = new Date(startTime);
 
-      locations.forEach((loc, index) => {
+      locations.forEach((loc: ILocation, index: number) => {
         const endTime = new Date(currentTime.getTime() + loc.visitDuration * 60000);
 
         items.push({
-          location: loc._id,
+          location: (loc as any)._id,
           order: index + 1,
           startTime: new Date(currentTime),
           endTime,
@@ -59,7 +59,7 @@ export class ItineraryService {
         date,
         items,
         totalDuration: items.reduce((sum, item) => sum + item.duration, 0),
-        categories: [...new Set(locations.map((l) => l.category))],
+        categories: [...new Set(locations.map((l: ILocation) => l.category))],
         status: 'draft',
       });
 
@@ -107,7 +107,7 @@ export class ItineraryService {
         // Calculate travel time from previous location
         let travelTime = 0;
         if (currentLocation) {
-          travelTime = this.estimateTravelTime(currentLocation, location.location.coordinates);
+          travelTime = this.estimateTravelTime(currentLocation, location.location.coordinates, currentTime);
           totalTravelTime += travelTime;
         }
 
@@ -220,14 +220,26 @@ export class ItineraryService {
     }
   }
 
-  // Helper method to estimate travel time
+  // Helper method to estimate travel time with traffic simulation
   private estimateTravelTime(
     from: [number, number],
-    to: [number, number]
+    to: [number, number],
+    startTime?: Date
   ): number {
     const distance = this.calculateDistance(from, to);
-    // Assume average speed of 30 km/h in urban/temple areas
-    return Math.round((distance / 30) * 60) + 5; // Add 5 min buffer
+    let speed = 30; // Default average speed km/h
+
+    if (startTime) {
+      const hour = startTime.getHours();
+      // Peak hours: 8-10 AM and 5-8 PM
+      if ((hour >= 8 && hour <= 10) || (hour >= 17 && hour <= 20)) {
+        speed = 20; // Slower due to traffic
+      } else if (hour >= 23 || hour <= 5) {
+        speed = 45; // Faster at night
+      }
+    }
+
+    return Math.round((distance / speed) * 60) + 5; // Add 5 min buffer
   }
 
   // Calculate distance between two points using Haversine formula
@@ -238,9 +250,9 @@ export class ItineraryService {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(this.toRadians(point1[1])) *
-        Math.cos(this.toRadians(point2[1])) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(this.toRadians(point2[1])) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
