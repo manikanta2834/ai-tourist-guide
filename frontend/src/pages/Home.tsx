@@ -1,12 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { MapPin, Compass, Calendar, Star, ChevronRight, Heart, Clock, Users, Award, Camera, Navigation, Sparkles } from 'lucide-react'
+import { MapPin, Compass, Calendar, Star, ChevronRight, Clock, Users, Award, Navigation, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { LocationCard } from '@/components/locations/LocationCard'
 import { Hero3DMap } from '@/components/home/Hero3DMap'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { ErrorMessage } from '@/components/ui/ErrorMessage'
 import { api } from '@/lib/api'
+
+
+
 
 // Real Sriperumbudur temple and location images - High quality from Wikimedia & Unsplash
 const heroImages = [
@@ -228,8 +231,10 @@ export default function Home() {
         </motion.div>
       </section>
 
+
       {/* Category Section with 3D Cards */}
       <section className="py-20 bg-gradient-to-b from-gray-900 to-gray-50">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -548,6 +553,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </div>
+    </div >
   )
 }
